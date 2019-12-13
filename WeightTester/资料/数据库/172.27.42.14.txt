@@ -1,0 +1,60 @@
+--SELECT*FROM m_process
+SELECT*FROM m_process
+WHERE site
+AND factory_cd='M-2'
+
+--SELECT*FROM t_insp_vc
+INSERT INTO t_insp_vc
+(insp_seq,updated_at,process_at,proc_uuid,work_cd,machine_cd,serial_cd,lot_cd,mo_cd,tag_id,datatype_id,judge_text,status_text,remarks_text)
+VALUES
+(NEXTVAL('t_insp_vc_insp_seq_seq'),NOW(),NOW(),
+ '00000000-0001-0003-0001-000000270000',
+ '1', '',
+ 'HRD9087-001D9GK09-DCCI1600A',
+ '','','',
+ 'JIG_BASE_W_WEIGHT','0','','')
+ ;SELECT*FROM t_insp_vc
+
+--SELECT*FROM t_data_vc
+INSERT INTO t_data_vc
+(insp_seq,process_at,inspect_cd,inspect_teXt,judge_text,upper_text,lower_text,status_text)
+VALUES
+(NEXTVAL('t_insp_vc_insp_seq_seq'),NOW(),'WEIGHT_AFTER_VACUUM','19.812','0','重量3上限','重量3下限','');
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT* --inspect_text
+FROM t_data_vc
+WHERE
+--*
+inspect_cd = 'IQC-J_BASE_W_WEIGHT_CD1'
+--*
+AND insp_seq=4319144
+limit 100
+
+--insp_seq
+SELECT*
+FROM t_insp_vc
+WHERE serial_cd='C468342G7TMKQYY12'
+--WHERE machine_cd!='' --judge_text='0'
+--AND  inspect_cd = 'IQC-J_BASE_W_WEIGHT_CD1'
+--AND insp_seq=4319144
+limit 100
+
+--
+SELECT*
+FROM m_process
+WHERE process_cd = 'AE-4'
+AND line_cd='L01'
+AND factory_cd='M-1'
+limit 100
+
