@@ -23,6 +23,22 @@ namespace WeightTester
     {
         readonly string Hostname = ConfigurationManager.AppSettings["Hostname"];
         readonly int Port = int.Parse(ConfigurationManager.AppSettings["Port"]);
+        string UUID_1, UUID_2_3;
+        readonly string machine_cd = ConfigurationManager.AppSettings["machine_cd"];
+        readonly string datatype_id = ConfigurationManager.AppSettings["datatype_id"];
+        readonly string site_cd = ConfigurationManager.AppSettings["site_cd"];
+        readonly string factory_cd = ConfigurationManager.AppSettings["factory_cd"];
+        readonly string line_cd = ConfigurationManager.AppSettings["line_cd"];
+        readonly string process_cd_1 = ConfigurationManager.AppSettings["process_cd_1"];
+        readonly string process_cd_2_3 = ConfigurationManager.AppSettings["process_cd_2_3"];
+
+        readonly string inspect_cd1 = ConfigurationManager.AppSettings["inspect_cd1"];
+        readonly string inspect_cd2 = ConfigurationManager.AppSettings["inspect_cd2"];
+        readonly double upper_text2 = double.Parse(ConfigurationManager.AppSettings["upper_text2"]);
+        readonly double lower_text2 = double.Parse(ConfigurationManager.AppSettings["lower_text2"]);
+        readonly string inspect_cd3 = ConfigurationManager.AppSettings["inspect_cd3"];
+        readonly double upper_text3 = double.Parse(ConfigurationManager.AppSettings["upper_text3"]);
+        readonly double lower_text3 = double.Parse(ConfigurationManager.AppSettings["lower_text3"]);
 
         public Main()
         {
@@ -76,6 +92,36 @@ namespace WeightTester
                 MessageBox.Show(ex.Message, "天平（串口）设置：", MessageBoxButtons.OK,MessageBoxIcon.Error);
                 Environment.Exit(0);
             }
+            #region 获取UUID
+            string sql = 
+$@"SELECT process_cd,proc_uuid
+FROM m_process 
+WHERE site_cd='{site_cd}'
+AND factory_cd='{factory_cd}'
+AND line_cd='{line_cd}'
+AND process_cd in('{process_cd_1}','{process_cd_2_3}')";
+            DataTable dt = new DataTable();
+            new WeightTester.DB.Helper().ExecuteDataTable(sql,ref dt);
+            if (dt.Rows.Count != 2)
+            {
+                MessageBox.Show("根据配置文件属性（site_cd，factory_cd，line_cd，process_cd），获取数据库的UUID失败", "数据库：", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Environment.Exit(0);
+            }
+            else
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    if (dr["process_cd"].ToString() == process_cd_1)
+                    {
+                        UUID_1 = dr["proc_uuid"].ToString();
+                    }
+                    else if (dr["process_cd"].ToString() == process_cd_2_3)
+                    {
+                        UUID_2_3 = dr["proc_uuid"].ToString();
+                    }
+                }
+            }
+            #endregion
         }
 
         private void TxtSN_KeyDown(object sender, KeyEventArgs e)
@@ -90,55 +136,47 @@ namespace WeightTester
         void Action(string sn)
         {
             #region 等待4秒获取天平的重量（串口不断发送数据）
-            double weight1 = 1.2345;
+            double weight3 = 18.111;
             #endregion
 
             #region 查找pqm数据库该sn的重量
-            //            string inspect_cd = "IQC-J_BASE_W_WEIGHT_CD1";
-            //            string sql =
-            //$@"SELECT inspect_text
-            //FROM t_data_kk09
-            //WHERE judge_text='0'
-            //AND inspect_cd = '{inspect_cd}'
-            //AND insp_seq=(
-            //	SELECT insp_seq
-            //	FROM t_insp_kk09
-            //	WHERE serial_cd='{sn}'
-            //	ORDER BY insp_seq desc
-            //	LIMIT 1)";
-            //            DataTable dt = new DataTable();
-            //            new WeightTester.DB.Helper().ExecuteDataTable(sql, ref dt);
-            //            double weight3=0;
-            //            if (dt.Rows.Count != 0) { weight3 = Convert.ToDouble(dt.Rows[0]["inspect_text"]); }
-           
             string sql =
 $@"SELECT inspect_text
 FROM t_data_vc
 WHERE judge_text='0'
 AND inspect_cd = '{inspect_cd1}'
 AND insp_seq=(
-	SELECT insp_seq
+	SELECT MAX(insp_seq)
 	FROM t_insp_vc
-	WHERE serial_cd='{sn}'
-	ORDER BY insp_seq desc
-	LIMIT 1)";
+	WHERE proc_uuid='{UUID_1}'
+    AND serial_cd='{sn}')";
             DataTable dt = new DataTable();
             new WeightTester.DB.Helper().ExecuteDataTable(sql, ref dt);
-            double weight3 = 0;
-            if (dt.Rows.Count != 0) { weight3 = Convert.ToDouble(dt.Rows[0]["inspect_text"]); }
+
+
+            double weight1 = 0;
+            if (dt.Rows.Count != 0) { weight1 = Convert.ToDouble(dt.Rows[0]["inspect_text"]); }
+            else
+            {
+                MessageBox.Show("根据SN，获取数据库的重量失败", "数据库：", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                //数据库找不到重量的操作，显示红色什么的
+                return;
+            }
             #endregion
 
             #region 上传重量3、重量2、设备机器号
             double weight2 = weight3 - weight1;
-
             insertDB(inspect_cd3, upper_text3, lower_text3, weight3);
             insertDB(inspect_cd2, upper_text2, lower_text2, weight2);
             #endregion
 
             #region 显示
+            StringBuilder display = new StringBuilder();
+            display.AppendLine($"数据库获取重量1：{weight1}g");
+            display.AppendLine($"上传天平的重量3：{weight3}g");
+            display.AppendLine($"上传相差的重量 ：{weight2}g");
+            txtResult.Text = display.ToString();
             #endregion
-
-            MessageBox.Show(weight3.ToString());
         }
 
 
@@ -206,20 +244,7 @@ AND insp_seq=(
             }
         }
 
-        readonly string machine_cd = ConfigurationManager.AppSettings["machine_cd"];
-        readonly string datatype_id = ConfigurationManager.AppSettings["datatype_id"];
-        readonly string site_cd = ConfigurationManager.AppSettings["site_cd"];
-        readonly string factory_cd = ConfigurationManager.AppSettings["factory_cd"];
-        readonly string line_cd = ConfigurationManager.AppSettings["line_cd"];
-        readonly string process_cd = ConfigurationManager.AppSettings["process_cd"];
-
-        readonly string inspect_cd1 = ConfigurationManager.AppSettings["inspect_cd1"];
-        readonly string inspect_cd2 = ConfigurationManager.AppSettings["inspect_cd2"];
-        readonly double upper_text2 = double.Parse(ConfigurationManager.AppSettings["upper_text2"]);
-        readonly double lower_text2 = double.Parse(ConfigurationManager.AppSettings["lower_text2"]);
-        readonly string inspect_cd3 = ConfigurationManager.AppSettings["inspect_cd3"];
-        readonly double upper_text3 = double.Parse(ConfigurationManager.AppSettings["upper_text3"]);
-        readonly double lower_text3 = double.Parse(ConfigurationManager.AppSettings["lower_text3"]);
+        
         
         private void button1_Click(object sender, EventArgs e)
         {
@@ -236,14 +261,8 @@ $@"INSERT INTO t_insp_vc
 (insp_seq,updated_at,process_at,proc_uuid,work_cd,machine_cd,serial_cd,lot_cd,mo_cd,tag_id,datatype_id,judge_text,status_text,remarks_text)
 VALUES
 (NEXTVAL('t_insp_vc_insp_seq_seq'),NOW(),NOW(),
-	(SELECT proc_uuid FROM m_process 
-	WHERE site_cd='{site_cd}'
-	AND factory_cd='{factory_cd}'
-	AND line_cd='{line_cd}'
-	AND process_cd='{process_cd}'),
-'1', '{machine_cd}',
-'{txtSN.Text}',
-'','','',
+'{UUID_2_3}','1', '{machine_cd}',
+'{txtSN.Text}','','','',
 '{datatype_id}','0','','')
 RETURNING insp_seq");
 

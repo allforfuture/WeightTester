@@ -41,7 +41,7 @@
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.txtSN = new System.Windows.Forms.TextBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.txtResult = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
@@ -148,17 +148,17 @@
             this.txtSN.Text = "HRD9087-001D9GK09-DCCI1600A";
             this.txtSN.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TxtSN_KeyDown);
             // 
-            // textBox1
+            // txtResult
             // 
-            this.textBox1.Location = new System.Drawing.Point(12, 105);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(342, 196);
-            this.textBox1.TabIndex = 13;
+            this.txtResult.Location = new System.Drawing.Point(12, 105);
+            this.txtResult.Multiline = true;
+            this.txtResult.Name = "txtResult";
+            this.txtResult.Size = new System.Drawing.Size(342, 196);
+            this.txtResult.TabIndex = 13;
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(432, 75);
+            this.button1.Location = new System.Drawing.Point(627, 27);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 14;
@@ -172,7 +172,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.txtResult);
             this.Controls.Add(this.txtSN);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.label9);
@@ -205,7 +205,7 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox txtSN;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox txtResult;
         private System.Windows.Forms.Button button1;
     }
 }
