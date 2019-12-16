@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>dll\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Npgsql, Version=2.0.14.3, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DB\Npgsql.dll</HintPath>
@@ -51,7 +55,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API.cs" />
     <Compile Include="DB\Helper.cs" />
+    <Compile Include="Json\PostJson.cs" />
+    <Compile Include="Json\ResultJson.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -104,6 +111,7 @@
     <Content Include="dll\Newtonsoft.Json.dll" />
     <Content Include="DB\Npgsql.dll" />
     <Content Include="资料\数据库\10.10.100.137.txt" />
+    <Content Include="资料\数据库\POST样本.txt" />
     <Content Include="资料\数据库\172.27.42.14.txt" />
     <Content Include="资料\硬件数据\天平（串口）\天平串口属性.png" />
     <Content Include="资料\硬件数据\天平（串口）\天平串口数据.txt" />

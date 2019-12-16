@@ -18,7 +18,6 @@ C:\Users\yyx19\Desktop\WeightTester\WeightTester\bin\Debug\WeightTester.exe
 C:\Users\yyx19\Desktop\WeightTester\WeightTester\bin\Debug\WeightTester.pdb
 C:\Users\yyx19\Desktop\WeightTester\WeightTester\bin\Debug\Npgsql.dll
 C:\Users\yyx19\Desktop\WeightTester\WeightTester\bin\Debug\Mono.Security.dll
-C:\Users\yyx19\Desktop\WeightTester\WeightTester\obj\Debug\WeightTester.csprojAssemblyReference.cache
 C:\Users\yyx19\Desktop\WeightTester\WeightTester\obj\Debug\WeightTester.Main.resources
 C:\Users\yyx19\Desktop\WeightTester\WeightTester\obj\Debug\WeightTester.Port.resources
 C:\Users\yyx19\Desktop\WeightTester\WeightTester\obj\Debug\WeightTester.Properties.Resources.resources
@@ -26,3 +25,5 @@ C:\Users\yyx19\Desktop\WeightTester\WeightTester\obj\Debug\WeightTester.csproj.G
 C:\Users\yyx19\Desktop\WeightTester\WeightTester\obj\Debug\WeightTester.csproj.CopyComplete
 C:\Users\yyx19\Desktop\WeightTester\WeightTester\obj\Debug\WeightTester.exe
 C:\Users\yyx19\Desktop\WeightTester\WeightTester\obj\Debug\WeightTester.pdb
+C:\Users\yyx19\Desktop\WeightTester\WeightTester\obj\Debug\WeightTester.csprojAssemblyReference.cache
+C:\Users\yyx19\Desktop\WeightTester\WeightTester\bin\Debug\Newtonsoft.Json.dll
