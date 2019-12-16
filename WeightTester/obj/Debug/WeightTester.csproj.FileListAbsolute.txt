@@ -12,7 +12,6 @@ C:\Users\yyx19\Desktop\WeightTester\WeightTester\WeightTester\obj\Debug\WeightTe
 C:\Users\yyx19\Desktop\WeightTester\WeightTester\WeightTester\obj\Debug\WeightTester.csproj.CopyComplete
 C:\Users\yyx19\Desktop\WeightTester\WeightTester\WeightTester\obj\Debug\WeightTester.exe
 C:\Users\yyx19\Desktop\WeightTester\WeightTester\WeightTester\obj\Debug\WeightTester.pdb
-C:\Users\yyx19\Desktop\WeightTester\WeightTester\bin\Debug\DB\DB.sql
 C:\Users\yyx19\Desktop\WeightTester\WeightTester\bin\Debug\WeightTester.exe.config
 C:\Users\yyx19\Desktop\WeightTester\WeightTester\bin\Debug\WeightTester.exe
 C:\Users\yyx19\Desktop\WeightTester\WeightTester\bin\Debug\WeightTester.pdb

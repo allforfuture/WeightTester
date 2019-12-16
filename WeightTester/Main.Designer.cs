@@ -182,8 +182,8 @@
             this.txtResult.Location = new System.Drawing.Point(95, 367);
             this.txtResult.Multiline = true;
             this.txtResult.Name = "txtResult";
-            this.txtResult.ReadOnly = true;
-            this.txtResult.Size = new System.Drawing.Size(500, 65);
+            this.txtResult.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtResult.Size = new System.Drawing.Size(500, 74);
             this.txtResult.TabIndex = 15;
             // 
             // txtPostBody
@@ -192,6 +192,7 @@
             this.txtPostBody.Multiline = true;
             this.txtPostBody.Name = "txtPostBody";
             this.txtPostBody.ReadOnly = true;
+            this.txtPostBody.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtPostBody.Size = new System.Drawing.Size(500, 170);
             this.txtPostBody.TabIndex = 14;
             // 

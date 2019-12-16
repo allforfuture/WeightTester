@@ -11,14 +11,10 @@ using System.Windows.Forms;
 using Microsoft.Win32;
 using System.Configuration;
 using System.IO.Ports;
-
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-
-
-//using System.Diagnostics;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
@@ -32,29 +28,20 @@ namespace WeightTester
         bool noWeight;
         string portLastStr = "";
         readonly int waitWeightTime = int.Parse(ConfigurationManager.AppSettings["waitWeightTime"]);
+        readonly int waitAnalysisTime = int.Parse(ConfigurationManager.AppSettings["waitAnalysisTime"]);
         double weight3;
         //扫描器（以太网）
         string lastSN;
         readonly string Hostname = ConfigurationManager.AppSettings["Hostname"];
         readonly int Port = int.Parse(ConfigurationManager.AppSettings["Port"]);
         //数据库属性
-        string UUID_1, UUID_2_3;
-        readonly string machine_cd = ConfigurationManager.AppSettings["machine_cd"];
-        readonly string datatype_id = ConfigurationManager.AppSettings["datatype_id"];
+        string UUID;
         readonly string site_cd = ConfigurationManager.AppSettings["site_cd"];
         readonly string factory_cd = ConfigurationManager.AppSettings["factory_cd"];
         readonly string line_cd = ConfigurationManager.AppSettings["line_cd"];
-        readonly string process_cd_1 = ConfigurationManager.AppSettings["process_cd_1"];
-        readonly string process_cd_2_3 = ConfigurationManager.AppSettings["process_cd_2_3"];
+        readonly string process_cd = ConfigurationManager.AppSettings["process_cd"];
+        readonly string inspect_cd = ConfigurationManager.AppSettings["inspect_cd"];
 
-        readonly string inspect_cd1 = ConfigurationManager.AppSettings["inspect_cd1"];
-        readonly string inspect_cd2 = ConfigurationManager.AppSettings["inspect_cd2"];
-        readonly double upper_text2 = double.Parse(ConfigurationManager.AppSettings["upper_text2"]);
-        readonly double lower_text2 = double.Parse(ConfigurationManager.AppSettings["lower_text2"]);
-        readonly string inspect_cd3 = ConfigurationManager.AppSettings["inspect_cd3"];
-        readonly double upper_text3 = double.Parse(ConfigurationManager.AppSettings["upper_text3"]);
-        readonly double lower_text3 = double.Parse(ConfigurationManager.AppSettings["lower_text3"]);
-        //POST地址
         readonly string postUrl = ConfigurationManager.AppSettings["postUrl"];
 
         public Main()
@@ -108,37 +95,28 @@ namespace WeightTester
                 Environment.Exit(0);
             }
             //根据配置文件打开扫描器-以太网
-            ThreadPool.QueueUserWorkItem(h => ScannerReceive());
+            //ThreadPool.QueueUserWorkItem(h => ScannerReceive());
             //Thread t = new Thread(ScannerReceive);
             //t.Start();
             #region 获取UUID
             string sql = 
-$@"SELECT process_cd,proc_uuid
+$@"SELECT proc_uuid
 FROM m_process 
 WHERE site_cd='{site_cd}'
 AND factory_cd='{factory_cd}'
 AND line_cd='{line_cd}'
-AND process_cd in('{process_cd_1}','{process_cd_2_3}')";
+AND process_cd ='{process_cd}'";
             DataTable dt = new DataTable();
             new WeightTester.DB.Helper().ExecuteDataTable(sql,ref dt);
-            if (dt.Rows.Count != 2)
+            if (dt.Rows.Count != 1)
             {
                 MessageBox.Show("根据配置文件属性（site_cd，factory_cd，line_cd，process_cd），获取数据库的UUID失败", "数据库：", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //MessageBox.Show("Failed to get the UUID of the database according to the configuration file attributes (site_cd, factory_cd, line_cd, process_cd)", "Database:", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Environment.Exit(0);
             }
             else
             {
-                foreach (DataRow dr in dt.Rows)
-                {
-                    if (dr["process_cd"].ToString() == process_cd_1)
-                    {
-                        UUID_1 = dr["proc_uuid"].ToString();
-                    }
-                    else if (dr["process_cd"].ToString() == process_cd_2_3)
-                    {
-                        UUID_2_3 = dr["proc_uuid"].ToString();
-                    }
-                }
+                UUID=dt.Rows[0]["proc_uuid"].ToString();
             }
             #endregion
         }
@@ -222,8 +200,6 @@ AND process_cd in('{process_cd_1}','{process_cd_2_3}')";
         {
             if (e.KeyCode == Keys.Return)
             {
-                txtSN.SelectAll();
-                txtMessage.Text = "";
                 Action(txtSN.Text);
             }
         }
@@ -231,16 +207,28 @@ AND process_cd in('{process_cd_1}','{process_cd_2_3}')";
         void Action(string sn)
         {
             #region 等待N秒获取天平的重量（串口不断发送数据）
-            Thread.Sleep(1000* waitWeightTime);
+            txtSN.Text = sn;
+            txtSN.SelectAll();
+            txtMessage.Text = "";
+            txtMessage.ForeColor = Color.Black;
+            txtPostBody.Text = "";
+            txtResult.Text = "";
+
+            Thread.Sleep(waitWeightTime);
             sptWeight.Close();
             getWeightSwitch = true;
             noWeight = true;
             sptWeight.Open();
-            Thread.Sleep(3000);//等待一段时间，让串口有足够时间赋值
+            Thread.Sleep(waitAnalysisTime);//等待一段时间，让串口有足够时间赋值
+            #region 测试(删除)
+            noWeight = false;
+            weight3 = 22.3431;
+            #endregion
             if (noWeight)
             {
                 //MessageBox.Show("获取不了合适的天平重量（g），请重试", "天平：", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtMessage.Text = "天平：\r\n获取不了合适的天平重量（g），请重试";
+                txtMessage.ForeColor = Color.Red;
                 return;
             }
             #endregion
@@ -250,11 +238,11 @@ AND process_cd in('{process_cd_1}','{process_cd_2_3}')";
 $@"SELECT inspect_text
 FROM t_data_vc
 WHERE judge_text='0'
-AND inspect_cd = '{inspect_cd1}'
+AND inspect_cd = '{inspect_cd}'
 AND insp_seq=(
 	SELECT MAX(insp_seq)
 	FROM t_insp_vc
-	WHERE proc_uuid='{UUID_1}'
+	WHERE proc_uuid='{UUID}'
     AND serial_cd='{sn}')";
             DataTable dt = new DataTable();
             new WeightTester.DB.Helper().ExecuteDataTable(sql, ref dt);
@@ -265,34 +253,37 @@ AND insp_seq=(
             {
                 //MessageBox.Show("根据SN，获取数据库的重量失败", "数据库：", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtMessage.Text = "数据库：\r\n根据SN，获取数据库的重量失败";
+                txtMessage.ForeColor = Color.Red;
                 return;
             }
             #endregion
 
             #region 上传重量3、重量2、设备机器号
             double weight2 = weight3 - weight1;
-            ////数据库上传
-            //insertDB(inspect_cd3, upper_text3, lower_text3, weight3);
-            //insertDB(inspect_cd2, upper_text2, lower_text2, weight2);
-            #region POST上传
-            //string postBody = CSV2PostBody.PostBody(csvArr);
-            //string postBody = WeightTester.Json.CSV2PostBody.PostBody(csvArr);
             string postBody = WeightTester.Json.CSV2PostBody.PostBody(sn,weight3,weight2);
-            txtPostBody.Text = postBody;
+            try
+            {
+                JObject jo = JObject.Parse(postBody);
+                txtPostBody.Text = jo.ToString();
+            }
+            catch { txtPostBody.Text = postBody; }
+
             string contentType = "application/json";
             string method = "POST";
             string result = new API().HttpResponse(postUrl, postBody, contentType, method);
-            txtResult.Text = result;
+            try
+            {
+                JObject jo = JObject.Parse(result);
+                txtResult.Text = jo.ToString();
+            }
+            catch { txtResult.Text = result; }
 
             JsonTextReader reader = new JsonTextReader(new StringReader(result));
             JObject J = (JObject)JToken.ReadFrom(reader);
             WeightTester.Json.ResultJson resultJson = JsonConvert.DeserializeObject<WeightTester.Json.ResultJson>(J.ToString());
-            #endregion
-
-            
-
-
-
+            if (resultJson.status != "OK")
+            { txtResult.ForeColor = Color.Red; }//txtResult属性不能只读，否则颜色一直是黑色
+            else { txtResult.ForeColor = Color.Black; }
             #endregion
 
             #region 显示
@@ -303,27 +294,6 @@ AND insp_seq=(
             txtMessage.Text = display.ToString();
             lastSN = sn;
             #endregion
-        }
-
-        void insertDB(string inspect_cd, double upper_text, double lower_text,double weight)
-        {
-            string judge_text = weight <= upper_text && weight >= lower_text ? "0" : "1";
-            List<string> sql = new List<string>();
-            sql.Add(
-$@"INSERT INTO t_insp_vc
-(insp_seq,updated_at,process_at,proc_uuid,work_cd,machine_cd,serial_cd,lot_cd,mo_cd,tag_id,datatype_id,judge_text,status_text,remarks_text)
-VALUES
-(NEXTVAL('t_insp_vc_insp_seq_seq'),NOW(),NOW(),
-'{UUID_2_3}','1', '{machine_cd}',
-'{txtSN.Text}','','','',
-'{datatype_id}','0','','')
-RETURNING insp_seq");
-
-            sql.Add(
-$@"INSERT INTO t_data_vc
-(insp_seq,process_at,inspect_cd,inspect_teXt,judge_text,upper_text,lower_text,status_text)
-VALUES(@@,NOW(),'{inspect_cd}',{weight},'{judge_text}','{upper_text}','{lower_text}','')");
-            new WeightTester.DB.Helper().TestTran(sql);
         }
     }
 }

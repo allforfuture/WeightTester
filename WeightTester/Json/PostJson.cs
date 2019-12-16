@@ -87,14 +87,11 @@ namespace WeightTester.Json
 
     public class Machine_info
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public string M_FLEXURE_W { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public string M_FLEXURE_E { get; set; }
+        private string machine_name_API = ConfigurationManager.AppSettings["machine_name_API"];
+        public string machine_name
+        { get { return machine_name_API; } }
+        //public string M_FLEXURE_W { get; set; }
+        //public string M_FLEXURE_E { get; set; }
     }
 
     public class Operator_info
@@ -212,105 +209,6 @@ namespace WeightTester.Json
 
     static class CSV2PostBody
     {
-        public static string PostBody(string[] csvArr)
-        {
-            #region 需要post的参数
-            //POST中的inspect_items
-            int itemsCount = Convert.ToUInt16(csvArr[15]);
-            List<Inspect_itemsItem> itemsList = new List<Inspect_itemsItem>();
-            for (int i = 0; i < itemsCount; i++)
-            {
-                Inspect_itemsItem item = new Inspect_itemsItem()
-                {
-                    inspect_cd = csvArr[16 + (5 * i)],
-                    inspect_upper = csvArr[17 + (5 * i)],
-                    inspect_lower = csvArr[17 + (5 * i)],
-                    inspect_value = csvArr[17 + (5 * i)],
-                    //inspect_judge = csvArr[20 + (5 * i)]
-                };
-                itemsList.Add(item);
-            }
-
-            //POST中的test_attributes
-            string timeStr = string.Format("20{0}-{1}-{2} {3}:{4}:{5}",
-                csvArr[9], csvArr[10], csvArr[11], csvArr[12], csvArr[13], csvArr[14]);
-            int total_judge_Location = 15 + (5 * itemsCount) + 1;
-
-            //POST中的附加项
-            Jig_info jig_Info = new Jig_info();
-            Machine_info machine_Info = new Machine_info();
-            Operator_info operator_Info = new Operator_info();
-            Mcset_info mcset_Info = new Mcset_info();
-            string nowType = "";
-            for (int i = total_judge_Location + 1; i < csvArr.Length; i++)
-            {
-                switch (csvArr[i])
-                {
-                    case "JIG":
-                        nowType = "JIG";
-                        continue;
-                    case "MACHINE":
-                        nowType = "MACHINE";
-                        continue;
-                    case "OPERATOR":
-                        nowType = "OPERATOR";
-                        continue;
-                    case "MCSET":
-                        nowType = "MCSET";
-                        continue;
-                }
-                switch (nowType)
-                {
-                    case "JIG":
-                        jig_Info.JIG_INNER = csvArr[i];
-                        continue;
-                    case "MACHINE":
-                        if (machine_Info.M_FLEXURE_W == null)
-                        { machine_Info.M_FLEXURE_W = csvArr[i]; }
-                        else
-                        { machine_Info.M_FLEXURE_E = csvArr[i]; }
-                        continue;
-                    case "OPERATOR":
-                        operator_Info.OP_HOT_BAR = csvArr[i];
-                        continue;
-                    case "MCSET":
-                        mcset_Info.MS_DOCKING = csvArr[i];
-                        continue;
-                }
-            }
-            #endregion
-
-            PostJson postJson = new PostJson()
-            {
-                sendResultDetails = new SendResultDetails()
-                {
-                    model_cd = csvArr[0],
-                    site_cd = csvArr[1],
-                    factory_cd = csvArr[2],
-                    line_cd = csvArr[3],
-                    process_cd = csvArr[4],
-                    serial_cd = csvArr[5],
-                    //datatype_id = "BASE",
-                    lot_cd="N/A",
-                    //mo_cd="N/A",
-                    inspect_items = itemsList,
-                    test_attributes = new Test_attributes()
-                    {
-                        process_start = timeStr,
-                        process_stop = timeStr,
-                        total_judge = csvArr[total_judge_Location]
-                    },
-                    child_serial_info = null,
-                    jig_info = jig_Info,
-                    machine_info = machine_Info,
-                    operator_info = operator_Info,
-                    mcset_info = mcset_Info
-                }
-            };
-            string postBody = JsonConvert.SerializeObject(postJson);
-            return postBody;
-        }
-
         public static string PostBody(string sn, double inspect_Weigrt3, double inspect_WaterWeigrt)
         {
             #region 检查项
@@ -357,13 +255,7 @@ namespace WeightTester.Json
                         process_stop = timeStr,
                         total_judge = tempJudge
                     },
-                    //machine_info = machine_Info,
-
-
-                    //child_serial_info = null,
-                    //jig_info = jig_Info,
-                    //operator_info = operator_Info,
-                    //mcset_info = mcset_Info
+                    machine_info = new Machine_info()
                 }
             };
             string postBody = JsonConvert.SerializeObject(postJson);
