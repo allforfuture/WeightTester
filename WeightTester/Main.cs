@@ -31,7 +31,7 @@ namespace WeightTester
         readonly int waitAnalysisTime = int.Parse(ConfigurationManager.AppSettings["waitAnalysisTime"]);
         double weight3;
         //扫描器（以太网）
-        string lastSN;
+        string lastSN { get { return txtLastSN.Text; } }
         readonly string Hostname = ConfigurationManager.AppSettings["Hostname"];
         readonly int Port = int.Parse(ConfigurationManager.AppSettings["Port"]);
         //数据库属性
@@ -47,6 +47,7 @@ namespace WeightTester
         public Main()
         {
             InitializeComponent();
+            Text += "_" + Application.ProductVersion.ToString();
             //根据配置文件打开天平-串口
             try
             {
@@ -94,10 +95,6 @@ namespace WeightTester
                 MessageBox.Show(ex.Message, "天平（串口）设置：", MessageBoxButtons.OK,MessageBoxIcon.Error);
                 Environment.Exit(0);
             }
-            //根据配置文件打开扫描器-以太网
-            //ThreadPool.QueueUserWorkItem(h => ScannerReceive());
-            //Thread t = new Thread(ScannerReceive);
-            //t.Start();
             #region 获取UUID
             string sql = 
 $@"SELECT proc_uuid
@@ -119,6 +116,12 @@ AND process_cd ='{process_cd}'";
                 UUID=dt.Rows[0]["proc_uuid"].ToString();
             }
             #endregion
+        }
+
+        private void Main_Load(object sender, EventArgs e)
+        {
+            //根据配置文件打开扫描器-以太网
+            ThreadPool.QueueUserWorkItem(h => ScannerReceive());
         }
 
         private void SptWeight_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
@@ -166,7 +169,9 @@ AND process_cd ='{process_cd}'";
 
         void ScannerReceive()
         {
-            //Thread.Sleep(1000);
+            //异常"在创建窗口句柄之前，不能在控件上调用Invoke或Begininvoke。"
+            //方法1)在创建窗口之后加上线程
+            //方法2）Thread.Sleep(100);延迟一段窗口开启的时间
             try
             {
                 TcpClient tcp = new TcpClient(Hostname, Port);
@@ -179,11 +184,12 @@ AND process_cd ='{process_cd}'";
 
                         this.Invoke(new Action(() =>
                         {
-                            if (message == "1009465K08WHB0005$1009465HBD0005-03$613-09907-17$N/A$555555$NSTD$N/A$N/A$N/A$N/A$WIP_AFTER_HOTBAR_NTRS$N/A$1000$OPERATOR:20170901002")
-                            { message = "HRD9087-001D9GK09-DCCI1600A"; }
+                            #region 测试（删除）
+                            //if (message == "1009465K08WHB0005$1009465HBD0005-03$613-09907-17$N/A$555555$NSTD$N/A$N/A$N/A$N/A$WIP_AFTER_HOTBAR_NTRS$N/A$1000$OPERATOR:20170901002")
+                            //{ message = "HRD9087-001D9GK09-DCCI1600A"; }
+                            #endregion
                             if (message == lastSN)
                                 return;
-                            txtSN.Text = message;
                             Action(message);
                         }));
                     }
@@ -213,6 +219,8 @@ AND process_cd ='{process_cd}'";
             txtMessage.ForeColor = Color.Black;
             txtPostBody.Text = "";
             txtResult.Text = "";
+            lblResult.Visible = false;
+            Application.DoEvents();
 
             Thread.Sleep(waitWeightTime);
             sptWeight.Close();
@@ -220,9 +228,9 @@ AND process_cd ='{process_cd}'";
             noWeight = true;
             sptWeight.Open();
             Thread.Sleep(waitAnalysisTime);//等待一段时间，让串口有足够时间赋值
-            #region 测试(删除)
-            noWeight = false;
-            weight3 = 22.3431;
+            #region 测试(注释)
+            //noWeight = false;
+            //weight3 = 22.3431;
             #endregion
             if (noWeight)
             {
@@ -232,6 +240,8 @@ AND process_cd ='{process_cd}'";
                 return;
             }
             #endregion
+            
+            txtLastSN.Text = sn;
 
             #region 查找pqm数据库该sn的重量
             string sql =
@@ -281,9 +291,18 @@ AND insp_seq=(
             JsonTextReader reader = new JsonTextReader(new StringReader(result));
             JObject J = (JObject)JToken.ReadFrom(reader);
             WeightTester.Json.ResultJson resultJson = JsonConvert.DeserializeObject<WeightTester.Json.ResultJson>(J.ToString());
+            lblResult.Visible = true;
+            lblResult.Text = resultJson.status;
             if (resultJson.status != "OK")
-            { txtResult.ForeColor = Color.Red; }//txtResult属性不能只读，否则颜色一直是黑色
-            else { txtResult.ForeColor = Color.Black; }
+            {
+                txtResult.ForeColor = Color.Red;//txtResult属性不能只读，否则颜色一直是黑色
+                lblResult.BackColor = Color.Red;
+            }
+            else
+            {
+                txtResult.ForeColor = Color.Black;
+                lblResult.BackColor = Color.Green;
+            }
             #endregion
 
             #region 显示
@@ -292,7 +311,6 @@ AND insp_seq=(
             display.AppendLine($"上传天平的重量3：{weight3}g");
             display.AppendLine($"上传相差的重量 ：{weight2}g");
             txtMessage.Text = display.ToString();
-            lastSN = sn;
             #endregion
         }
     }

@@ -33,9 +33,26 @@ namespace WeightTester.Json
             get
             {
                 double v = Convert.ToDouble(inspect_value);
-                double u = Convert.ToDouble(inspect_upper);
-                double l = Convert.ToDouble(inspect_lower);
-                string result = v <= u && v >= l ? "0" : "1";
+                bool U, L;
+                if (inspect_upper == "N/A")
+                {
+                    U = true;
+                }
+                else
+                {
+                    U = v <= Convert.ToDouble(inspect_upper) ? true : false;
+                }
+
+                if (inspect_lower == "N/A")
+                {
+                    L = true;
+                }
+                else
+                {
+                    L = v >= Convert.ToDouble(inspect_lower) ? true : false;
+                }
+
+                string result = U && L ? "0" : "1";
                 return result;
             }
         }
@@ -57,33 +74,8 @@ namespace WeightTester.Json
         public string total_judge { get; set; }
     }
 
-    public class Child_serial_info
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public string serial_cd { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public string datatype_id { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public string lot_cd { get; set; }
-    }
 
-    public class Jig_info
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public string BUCK { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public string JIG_INNER { get; set; }
-    }
+
 
     public class Machine_info
     {
@@ -177,26 +169,11 @@ namespace WeightTester.Json
         /// 
         /// </summary>
         public Test_attributes test_attributes { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public Child_serial_info child_serial_info { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public Jig_info jig_info { get; set; }
+       
         /// <summary>
         /// 
         /// </summary>
         public Machine_info machine_info { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public Operator_info operator_info { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public Mcset_info mcset_info { get; set; }
     }
 
     public class PostJson
@@ -255,7 +232,7 @@ namespace WeightTester.Json
                         process_stop = timeStr,
                         total_judge = tempJudge
                     },
-                    machine_info = new Machine_info()
+                    machine_info = new Machine_info(),
                 }
             };
             string postBody = JsonConvert.SerializeObject(postJson);
