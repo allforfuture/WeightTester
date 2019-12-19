@@ -35,12 +35,12 @@ namespace WeightTester
         readonly string Hostname = ConfigurationManager.AppSettings["Hostname"];
         readonly int Port = int.Parse(ConfigurationManager.AppSettings["Port"]);
         //数据库属性
-        string UUID;
         readonly string site_cd = ConfigurationManager.AppSettings["site_cd"];
         readonly string factory_cd = ConfigurationManager.AppSettings["factory_cd"];
         readonly string line_cd = ConfigurationManager.AppSettings["line_cd"];
         readonly string process_cd = ConfigurationManager.AppSettings["process_cd"];
         readonly string inspect_cd = ConfigurationManager.AppSettings["inspect_cd"];
+        readonly string datatype_id = ConfigurationManager.AppSettings["datatype_id"];
 
         readonly string postUrl = ConfigurationManager.AppSettings["postUrl"];
 
@@ -95,27 +95,6 @@ namespace WeightTester
                 MessageBox.Show(ex.Message, "天平（串口）设置：", MessageBoxButtons.OK,MessageBoxIcon.Error);
                 Environment.Exit(0);
             }
-            #region 获取UUID
-            string sql = 
-$@"SELECT proc_uuid
-FROM m_process 
-WHERE site_cd='{site_cd}'
-AND factory_cd='{factory_cd}'
-AND line_cd='{line_cd}'
-AND process_cd ='{process_cd}'";
-            DataTable dt = new DataTable();
-            new WeightTester.DB.Helper().ExecuteDataTable(sql,ref dt);
-            if (dt.Rows.Count != 1)
-            {
-                MessageBox.Show("根据配置文件属性（site_cd，factory_cd，line_cd，process_cd），获取数据库的UUID失败", "数据库：", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                //MessageBox.Show("Failed to get the UUID of the database according to the configuration file attributes (site_cd, factory_cd, line_cd, process_cd)", "Database:", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Environment.Exit(0);
-            }
-            else
-            {
-                UUID=dt.Rows[0]["proc_uuid"].ToString();
-            }
-            #endregion
         }
 
         private void Main_Load(object sender, EventArgs e)
@@ -242,27 +221,38 @@ AND process_cd ='{process_cd}'";
             #endregion
             
             txtLastSN.Text = sn;
-
+            
             #region 查找pqm数据库该sn的重量
-            string sql =
-$@"SELECT inspect_text
-FROM t_data_vc
-WHERE judge_text='0'
-AND inspect_cd = '{inspect_cd}'
-AND insp_seq=(
-	SELECT MAX(insp_seq)
-	FROM t_insp_vc
-	WHERE proc_uuid='{UUID}'
-    AND serial_cd='{sn}')";
+            StringBuilder sql = new StringBuilder();
+            sql.AppendLine(
+$@"SELECT dd.inspect_text
+FROM t_insp_j11 AS ii
+LEFT JOIN m_process AS pp ON pp.proc_uuid = ii.proc_uuid
+LEFT JOIN t_data_j11 AS dd ON dd.insp_seq = ii.insp_seq
+WHERE ii.serial_cd = '{sn}'");
+            //选择性增加条件
+            if (datatype_id != "N/A")
+                sql.AppendLine($"AND ii.datatype_id='{datatype_id}'");
+            if (site_cd != "N/A")
+                sql.AppendLine($"AND pp.site_cd='{site_cd}'");
+            if (factory_cd != "N/A")
+                sql.AppendLine($"AND pp.factory_cd='{factory_cd}'");
+            if (line_cd != "N/A")
+                sql.AppendLine($"AND pp.line_cd = '{line_cd}'");
+            if (process_cd != "N/A")
+                sql.AppendLine($"AND pp.process_cd = '{process_cd}'");
+            if (inspect_cd != "N/A")
+                sql.AppendLine($"AND dd.inspect_cd ='{inspect_cd}'");
+
+            sql.Append("ORDER BY ii.process_at DESC LIMIT 1");
             DataTable dt = new DataTable();
-            new WeightTester.DB.Helper().ExecuteDataTable(sql, ref dt);
+            new WeightTester.DB.Helper().ExecuteDataTable(sql.ToString(), ref dt);
             
             double weight1 = 0;
             if (dt.Rows.Count != 0) { weight1 = Convert.ToDouble(dt.Rows[0]["inspect_text"]); }
             else
             {
-                //MessageBox.Show("根据SN，获取数据库的重量失败", "数据库：", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtMessage.Text = "数据库：\r\n根据SN，获取数据库的重量失败";
+                txtMessage.Text = "数据库：\r\n根据条件，该SN获取数据库的重量失败";
                 txtMessage.ForeColor = Color.Red;
                 return;
             }
