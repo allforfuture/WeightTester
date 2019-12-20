@@ -191,7 +191,7 @@ namespace WeightTester
 
         void Action(string sn)
         {
-            #region 等待N秒获取天平的重量（串口不断发送数据）
+            #region 界面初始化
             txtSN.Text = sn;
             txtSN.SelectAll();
             txtMessage.Text = "";
@@ -200,7 +200,9 @@ namespace WeightTester
             txtResult.Text = "";
             lblResult.Visible = false;
             Application.DoEvents();
+            #endregion
 
+            #region 等待N秒获取天平的重量（串口不断发送数据）
             Thread.Sleep(waitWeightTime);
             sptWeight.Close();
             getWeightSwitch = true;
