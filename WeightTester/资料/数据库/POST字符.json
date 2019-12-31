@@ -1,0 +1,37 @@
+﻿{
+  "sendResultDetails": {
+    "model_cd": "J11",
+    "site_cd": "NSTD",
+    "factory_cd": "M-2",
+    "line_cd": "V02",
+    "process_cd": "AE-6",
+    "serial_cd": "GH9123456789XXXXX",
+    "datatype_id": "WATERINJECT",
+    "lot_cd": "N/A",
+    "mo_cd": "N/A",
+    "inspect_items": [
+      {
+        "inspect_cd": "WEIGHT_AFTER_VACUUM",
+        "inspect_upper": "N/A",
+        "inspect_lower": "N/A",
+        "inspect_value": "22.3431",
+        "inspect_judge": "0"
+      },
+      {
+        "inspect_cd": "WATER_WEIGHT_AFTER_VACUUM",
+        "inspect_upper": "4.0000",
+        "inspect_lower": "3.0000",
+        "inspect_value": "14.641599",
+        "inspect_judge": "1"
+      }
+    ],
+    "test_attributes": {
+      "process_start": "2019-12-31 09:39:08",
+      "process_stop": "2019-12-31 09:39:08",
+      "total_judge": "1"
+    },
+    "machine_info": {
+      "WATERINJECT_ID": "N/A"
+    }
+  }
+}

@@ -107,9 +107,7 @@
     <Content Include="DB\Mono.Security.dll" />
     <Content Include="dll\Newtonsoft.Json.dll" />
     <Content Include="DB\Npgsql.dll" />
-    <Content Include="资料\数据库\10.10.100.137.txt" />
-    <Content Include="资料\数据库\POST样本.txt" />
-    <Content Include="资料\数据库\172.27.42.14.txt" />
+    <None Include="资料\数据库\POST字符.json" />
     <Content Include="资料\数据库\搜索weight1的SQL.sql" />
     <Content Include="资料\硬件数据\天平（串口）\天平串口属性.png" />
     <Content Include="资料\硬件数据\天平（串口）\天平串口数据.txt" />

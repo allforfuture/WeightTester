@@ -194,11 +194,20 @@ namespace WeightTester
             #region 界面初始化
             txtSN.Text = sn;
             txtSN.SelectAll();
-            txtMessage.Text = "";
-            txtMessage.ForeColor = Color.Black;
             txtPostBody.Text = "";
             txtResult.Text = "";
             lblResult.Visible = false;
+            if (sn == "")
+            {
+                txtMessage.Text = "SN不能为空";
+                txtMessage.ForeColor = Color.Red;
+                return;
+            }
+            else
+            {
+                txtMessage.Text = "";
+                txtMessage.ForeColor = Color.Black;
+            }
             Application.DoEvents();
             #endregion
 
@@ -221,7 +230,7 @@ namespace WeightTester
                 return;
             }
             #endregion
-            
+
             txtLastSN.Text = sn;
             
             #region 查找pqm数据库该sn的重量

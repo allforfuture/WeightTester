@@ -80,10 +80,8 @@ namespace WeightTester.Json
     public class Machine_info
     {
         private string machine_name_API = ConfigurationManager.AppSettings["machine_name_API"];
-        public string machine_name
+        public string WATERINJECT_ID
         { get { return machine_name_API; } }
-        //public string M_FLEXURE_W { get; set; }
-        //public string M_FLEXURE_E { get; set; }
     }
 
     public class Operator_info
