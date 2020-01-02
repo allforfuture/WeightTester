@@ -171,6 +171,7 @@ namespace WeightTester
                                 return;
                             Action(message);
                         }));
+                        //break;//防止读取"SN\r\nSN\r\nSN\r\nSN\r\n{设置lastSN的值}SN\r\nSN\r\nSN\r\n"
                     }
                 }
             }
@@ -220,7 +221,7 @@ namespace WeightTester
             Thread.Sleep(waitAnalysisTime);//等待一段时间，让串口有足够时间赋值
             #region 测试(注释)
             //noWeight = false;
-            //weight3 = 22.3431;
+            //weight3 = 200;
             #endregion
             if (noWeight)
             {
@@ -237,9 +238,9 @@ namespace WeightTester
             StringBuilder sql = new StringBuilder();
             sql.AppendLine(
 $@"SELECT dd.inspect_text
-FROM t_insp_j11 AS ii
+FROM t_insp_{DB.Helper.DBremark} AS ii
 LEFT JOIN m_process AS pp ON pp.proc_uuid = ii.proc_uuid
-LEFT JOIN t_data_j11 AS dd ON dd.insp_seq = ii.insp_seq
+LEFT JOIN t_data_{DB.Helper.DBremark} AS dd ON dd.insp_seq = ii.insp_seq
 WHERE ii.serial_cd = '{sn}'");
             //选择性增加条件
             if (datatype_id != "N/A")
@@ -292,17 +293,13 @@ WHERE ii.serial_cd = '{sn}'");
             JsonTextReader reader = new JsonTextReader(new StringReader(result));
             JObject J = (JObject)JToken.ReadFrom(reader);
             WeightTester.Json.ResultJson resultJson = JsonConvert.DeserializeObject<WeightTester.Json.ResultJson>(J.ToString());
-            lblResult.Visible = true;
-            lblResult.Text = resultJson.status;
             if (resultJson.status != "OK")
             {
                 txtResult.ForeColor = Color.Red;//txtResult属性不能只读，否则颜色一直是黑色
-                lblResult.BackColor = Color.Red;
             }
             else
             {
                 txtResult.ForeColor = Color.Black;
-                lblResult.BackColor = Color.Green;
             }
             #endregion
 
@@ -312,6 +309,22 @@ WHERE ii.serial_cd = '{sn}'");
             display.AppendLine($"上传天平的重量3：{weight3}g");
             display.AppendLine($"上传相差的重量 ：{weight2}g");
             txtMessage.Text = display.ToString();
+
+            #region 最终显示是否在上限内判定
+            JsonTextReader reader_2 = new JsonTextReader(new StringReader(postBody));
+            JObject J_2 = (JObject)JToken.ReadFrom(reader_2);
+            WeightTester.Json.PostJson postJson = JsonConvert.DeserializeObject<WeightTester.Json.PostJson>(J_2.ToString());
+            lblResult.Visible = true;
+            lblResult.Text = postJson.sendResultDetails.test_attributes.total_judge == "0" ? "OK" : "NG";
+            if (lblResult.Text != "OK")
+            {
+                lblResult.BackColor = Color.Red;
+            }
+            else
+            {
+                lblResult.BackColor = Color.Green;
+            }
+            #endregion
             #endregion
         }
     }

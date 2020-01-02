@@ -1,13 +1,4 @@
-﻿//using System.Threading.Tasks;
-
-//namespace WeightTester.DB
-//{
-//    class Helper
-//    {
-//    }
-//}
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,6 +19,15 @@ namespace WeightTester.DB
 
         NpgsqlConnection con;
 
+        public static string DBremark
+        {
+            //"Server=10.10.100.82;Port=5432;User id=pqm;password=dbuser;Database=pqm_j11;"
+            get
+            {
+                int startInt = DbConnectstring.LastIndexOf('_');
+                return DbConnectstring.Substring(startInt+1).Replace(";", "");
+            }
+        }
 
         public int ExecuteSQL(string sql)
         {
