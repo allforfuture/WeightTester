@@ -99,8 +99,10 @@ namespace WeightTester
 
         private void Main_Load(object sender, EventArgs e)
         {
-            //根据配置文件打开扫描器-以太网
-            ThreadPool.QueueUserWorkItem(h => ScannerReceive());
+            //根据配置文件是否打开扫描器-以太网
+            bool ScannerSwitch = ConfigurationManager.AppSettings["ScannerSwitch"] == "1" ? true : false;
+            if (ScannerSwitch)
+                ThreadPool.QueueUserWorkItem(h => ScannerReceive());
         }
 
         private void SptWeight_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
