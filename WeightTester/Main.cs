@@ -31,7 +31,7 @@ namespace WeightTester
         readonly int waitAnalysisTime = int.Parse(ConfigurationManager.AppSettings["waitAnalysisTime"]);
         double weight3;
         //扫描器（以太网）
-        string lastSN { get { return txtLastSN.Text; } }
+        string LastSN { get { return txtLastSN.Text; } }
         readonly string Hostname = ConfigurationManager.AppSettings["Hostname"];
         readonly int Port = int.Parse(ConfigurationManager.AppSettings["Port"]);
         //数据库属性
@@ -169,7 +169,7 @@ namespace WeightTester
                             //if (message == "1009465K08WHB0005$1009465HBD0005-03$613-09907-17$N/A$555555$NSTD$N/A$N/A$N/A$N/A$WIP_AFTER_HOTBAR_NTRS$N/A$1000$OPERATOR:20170901002")
                             //{ message = "HRD9087-001D9GK09-DCCI1600A"; }
                             #endregion
-                            if (message == lastSN)
+                            if (message == LastSN)
                                 return;
                             Action(message);
                         }));
@@ -262,7 +262,7 @@ WHERE ii.serial_cd = '{sn}'");
             DataTable dt = new DataTable();
             new WeightTester.DB.Helper().ExecuteDataTable(sql.ToString(), ref dt);
             
-            double weight1 = 0;
+            double weight1;
             if (dt.Rows.Count != 0) { weight1 = Convert.ToDouble(dt.Rows[0]["inspect_text"]); }
             else
             {
@@ -273,7 +273,8 @@ WHERE ii.serial_cd = '{sn}'");
             #endregion
 
             #region 上传重量3、重量2、设备机器号
-            double weight2 = weight3 - weight1;
+            int saveDigit = MaxSaveDigit(weight1, weight3);
+            double weight2 = Math.Round(weight3 - weight1, saveDigit);//防止计算异常：1-0.9=0.099999999999999978
             string postBody = WeightTester.Json.CSV2PostBody.PostBody(sn,weight3,weight2);
             try
             {
@@ -328,6 +329,27 @@ WHERE ii.serial_cd = '{sn}'");
             }
             #endregion
             #endregion
+        }
+
+        /// <summary>
+        /// 返回2个数中的最大小数点位数
+        /// </summary>
+        /// <param name="double1">称重1</param>
+        /// <param name="double2">称重3</param>
+        /// <returns></returns>
+        int MaxSaveDigit(double double1, double double2)
+        {
+            //int result = weight1.ToString().Length - weight1.ToString().IndexOf('.') - 1;
+            string[] strArr1 = double1.ToString().Split('.');
+            string[] strArr2 = double2.ToString().Split('.');
+            if (strArr1.Length == 2 || strArr2.Length == 2)
+            {
+                int digit1 = 0, digit2 = 0;
+                try { digit1 = strArr1[1].Length; } catch { }
+                try { digit2 = strArr2[1].Length; } catch { }
+                return digit1 > digit2 ? digit1 : digit2;
+            }
+            else { return 0; }
         }
     }
 }
