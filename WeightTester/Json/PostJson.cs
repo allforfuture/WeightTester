@@ -52,6 +52,19 @@ namespace WeightTester.Json
                     L = v >= Convert.ToDouble(inspect_lower) ? true : false;
                 }
 
+                if (!U)
+                {
+                    string str = inspect_cd + "超上限\r\n";
+                    if (!WeightTester.Main.main.lblDetail.Text.Contains(str))
+                        WeightTester.Main.main.lblDetail.Text += str;
+                }
+                if (!L)
+                {
+                    string str = inspect_cd + "超下限\r\n";
+                    if (!WeightTester.Main.main.lblDetail.Text.Contains(str))
+                        WeightTester.Main.main.lblDetail.Text += str;
+                }
+
                 string result = U && L ? "0" : "1";
                 return result;
             }

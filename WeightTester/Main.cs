@@ -44,6 +44,7 @@ namespace WeightTester
 
         readonly string postUrl = ConfigurationManager.AppSettings["postUrl"];
 
+        public static Main main;
         public Main()
         {
             InitializeComponent();
@@ -95,6 +96,7 @@ namespace WeightTester
                 MessageBox.Show(ex.Message, "天平（串口）设置：", MessageBoxButtons.OK,MessageBoxIcon.Error);
                 Environment.Exit(0);
             }
+            main = this;
         }
 
         private void Main_Load(object sender, EventArgs e)
@@ -200,6 +202,8 @@ namespace WeightTester
             txtPostBody.Text = "";
             txtResult.Text = "";
             lblResult.Visible = false;
+            lblDetail.Visible = false;
+            lblDetail.Text = "";
             if (sn == "")
             {
                 txtMessage.Text = "SN不能为空";
@@ -322,6 +326,7 @@ WHERE ii.serial_cd = '{sn}'");
             if (lblResult.Text != "OK")
             {
                 lblResult.BackColor = Color.Red;
+                lblDetail.Visible = true;
             }
             else
             {

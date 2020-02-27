@@ -41,6 +41,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.txtLastSN = new System.Windows.Forms.TextBox();
             this.lblResult = new System.Windows.Forms.Label();
+            this.lblDetail = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // sptWeight
@@ -138,17 +139,28 @@
             // lblResult
             // 
             this.lblResult.AutoSize = true;
-            this.lblResult.Font = new System.Drawing.Font("宋体", 120F);
-            this.lblResult.Location = new System.Drawing.Point(367, 18);
+            this.lblResult.Font = new System.Drawing.Font("宋体", 72F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblResult.Location = new System.Drawing.Point(366, 5);
             this.lblResult.Name = "lblResult";
-            this.lblResult.Size = new System.Drawing.Size(0, 161);
+            this.lblResult.Size = new System.Drawing.Size(0, 97);
             this.lblResult.TabIndex = 18;
+            // 
+            // lblDetail
+            // 
+            this.lblDetail.AutoSize = true;
+            this.lblDetail.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblDetail.ForeColor = System.Drawing.Color.Red;
+            this.lblDetail.Location = new System.Drawing.Point(355, 114);
+            this.lblDetail.Name = "lblDetail";
+            this.lblDetail.Size = new System.Drawing.Size(0, 16);
+            this.lblDetail.TabIndex = 19;
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(617, 487);
+            this.Controls.Add(this.lblDetail);
             this.Controls.Add(this.lblResult);
             this.Controls.Add(this.txtLastSN);
             this.Controls.Add(this.label5);
@@ -182,6 +194,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox txtLastSN;
         private System.Windows.Forms.Label lblResult;
+        public System.Windows.Forms.Label lblDetail;
     }
 }
 
