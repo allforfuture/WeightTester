@@ -322,7 +322,7 @@ WHERE ii.serial_cd = '{sn}'");
             JObject J_2 = (JObject)JToken.ReadFrom(reader_2);
             WeightTester.Json.PostJson postJson = JsonConvert.DeserializeObject<WeightTester.Json.PostJson>(J_2.ToString());
             lblResult.Visible = true;
-            lblResult.Text = postJson.sendResultDetails.test_attributes.total_judge == "0" ? "OK" : "NG";
+            lblResult.Text = postJson.sendResultDetails.test_attributes.total_judge == "0" && resultJson.status == "OK" ? "OK" : "NG";
             if (lblResult.Text != "OK")
             {
                 lblResult.BackColor = Color.Red;
