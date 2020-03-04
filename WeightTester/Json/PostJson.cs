@@ -197,7 +197,7 @@ namespace WeightTester.Json
 
     static class CSV2PostBody
     {
-        public static string PostBody(string sn, double inspect_Weigrt3, double inspect_WaterWeigrt)
+        public static string PostBody(string sn, double inspect_Weigrt3)
         {
             #region 检查项
             List<Inspect_itemsItem> itemsList = new List<Inspect_itemsItem>();
@@ -209,14 +209,6 @@ namespace WeightTester.Json
                 inspect_value = inspect_Weigrt3.ToString(),
             };
             itemsList.Add(weight3);
-            Inspect_itemsItem weightWater = new Inspect_itemsItem()
-            {
-                inspect_cd = ConfigurationManager.AppSettings["inspect_cd_Water"],
-                inspect_upper = ConfigurationManager.AppSettings["inspect_upper_Water"],
-                inspect_lower = ConfigurationManager.AppSettings["inspect_lower_Water"],
-                inspect_value = inspect_WaterWeigrt.ToString(),
-            };
-            itemsList.Add(weightWater);
             #endregion
             #region 所有检查项的总判断
             string tempJudge = "0"; ;

@@ -90,6 +90,7 @@
             this.txtSN.Name = "txtSN";
             this.txtSN.Size = new System.Drawing.Size(250, 21);
             this.txtSN.TabIndex = 10;
+            this.txtSN.Text = "GH912345678912346";
             this.txtSN.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TxtSN_KeyDown);
             // 
             // txtMessage

@@ -29,7 +29,7 @@ namespace WeightTester
         string portLastStr = "";
         readonly int waitWeightTime = int.Parse(ConfigurationManager.AppSettings["waitWeightTime"]);
         readonly int waitAnalysisTime = int.Parse(ConfigurationManager.AppSettings["waitAnalysisTime"]);
-        double weight3;
+        double weight1;
         //扫描器（以太网）
         string LastSN { get { return txtLastSN.Text; } }
         readonly string Hostname = ConfigurationManager.AppSettings["Hostname"];
@@ -139,7 +139,7 @@ namespace WeightTester
                     {
                         try//防止串口乱码等
                         {
-                            weight3 = Convert.ToDouble(str.Replace("H  +", "").Replace("g", ""));
+                            weight1 = Convert.ToDouble(str.Replace("H  +", "").Replace("g", ""));
                             noWeight = false;
                         }
                         catch { }
@@ -226,8 +226,8 @@ namespace WeightTester
             sptWeight.Open();
             Thread.Sleep(waitAnalysisTime);//等待一段时间，让串口有足够时间赋值
             #region 测试(注释)
-            //noWeight = false;
-            //weight3 = 200;
+            noWeight = false;
+            weight1 = 200;
             #endregion
             if (noWeight)
             {
@@ -239,47 +239,9 @@ namespace WeightTester
             #endregion
 
             txtLastSN.Text = sn;
-            
-            #region 查找pqm数据库该sn的重量
-            StringBuilder sql = new StringBuilder();
-            sql.AppendLine(
-$@"SELECT dd.inspect_text
-FROM t_insp_{DB.Helper.DBremark} AS ii
-LEFT JOIN m_process AS pp ON pp.proc_uuid = ii.proc_uuid
-LEFT JOIN t_data_{DB.Helper.DBremark} AS dd ON dd.insp_seq = ii.insp_seq
-WHERE ii.serial_cd = '{sn}'");
-            //选择性增加条件
-            if (datatype_id != "N/A")
-                sql.AppendLine($"AND ii.datatype_id='{datatype_id}'");
-            if (site_cd != "N/A")
-                sql.AppendLine($"AND pp.site_cd='{site_cd}'");
-            if (factory_cd != "N/A")
-                sql.AppendLine($"AND pp.factory_cd='{factory_cd}'");
-            if (line_cd != "N/A")
-                sql.AppendLine($"AND pp.line_cd = '{line_cd}'");
-            if (process_cd != "N/A")
-                sql.AppendLine($"AND pp.process_cd = '{process_cd}'");
-            if (inspect_cd != "N/A")
-                sql.AppendLine($"AND dd.inspect_cd ='{inspect_cd}'");
-
-            sql.Append("ORDER BY ii.process_at DESC LIMIT 1");
-            DataTable dt = new DataTable();
-            new WeightTester.DB.Helper().ExecuteDataTable(sql.ToString(), ref dt);
-            
-            double weight1;
-            if (dt.Rows.Count != 0) { weight1 = Convert.ToDouble(dt.Rows[0]["inspect_text"]); }
-            else
-            {
-                txtMessage.Text = "数据库：\r\n根据条件，该SN获取数据库的重量失败";
-                txtMessage.ForeColor = Color.Red;
-                return;
-            }
-            #endregion
 
             #region 上传重量3、重量2、设备机器号
-            int saveDigit = MaxSaveDigit(weight1, weight3);
-            double weight2 = Math.Round(weight3 - weight1, saveDigit);//防止计算异常：1-0.9=0.099999999999999978
-            string postBody = WeightTester.Json.CSV2PostBody.PostBody(sn,weight3,weight2);
+            string postBody = WeightTester.Json.CSV2PostBody.PostBody(sn,weight1);
             try
             {
                 JObject jo = JObject.Parse(postBody);
@@ -312,9 +274,7 @@ WHERE ii.serial_cd = '{sn}'");
 
             #region 显示
             StringBuilder display = new StringBuilder();
-            display.AppendLine($"数据库获取重量1：{weight1}g");
-            display.AppendLine($"上传天平的重量3：{weight3}g");
-            display.AppendLine($"上传相差的重量 ：{weight2}g");
+            display.AppendLine($"上传天平的重量1：{weight1}g");
             txtMessage.Text = display.ToString();
 
             #region 最终显示是否在上限内判定
