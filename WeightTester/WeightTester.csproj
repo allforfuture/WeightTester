@@ -7,7 +7,7 @@
     <ProjectGuid>{4B447431-D119-4054-9BD0-D50676C83BDE}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>WeightTester</RootNamespace>
-    <AssemblyName>WeightTester</AssemblyName>
+    <AssemblyName>WeightTester_OnlyPostWeight1</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

@@ -226,8 +226,8 @@ namespace WeightTester
             sptWeight.Open();
             Thread.Sleep(waitAnalysisTime);//等待一段时间，让串口有足够时间赋值
             #region 测试(注释)
-            noWeight = false;
-            weight1 = 200;
+            //noWeight = false;
+            //weight1 = 200;
             #endregion
             if (noWeight)
             {
